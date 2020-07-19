@@ -1,0 +1,14 @@
+## Interface: 80300
+## Title: LFG Social Extended
+## Author: Sniqi
+## Version: 0.1
+## Notes: Extends the LFG tool with a Black-/Whitelist and raider.IO options
+## OptionalDeps: RaiderIO, LibStub, Ace3
+## SavedVariables: LFGSocialExtendedDB
+
+#@no-lib-strip@
+libs\load_libs.xml
+#@end-no-lib-strip@
+
+init.lua
+LFGSocialExtended.lua

@@ -1,0 +1,3 @@
+local AddonName, LFGSE = ...
+_G["LFGSE"] = LFGSE
+LFGSE.L = {}
