@@ -11,4 +11,5 @@ libs\load_libs.xml
 #@end-no-lib-strip@
 
 init.lua
+Helper.lua
 LFGSocialExtended.lua
