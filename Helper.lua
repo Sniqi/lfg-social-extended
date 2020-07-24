@@ -28,15 +28,21 @@ LFGSE.convertColorToHex = function(decimalColor)
     return colorTable[1] ..colorTable[2] ..colorTable[3] ..colorTable[4]
 end
 
-function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k,v in pairs(o) do
-            if type(k) ~= 'number' then k = '"'..k..'"' end
-            s = s .. '['..k..'] = ' .. dump(v) .. ','
-        end
-        return s .. '} '
+function dump (tbl, indent)
+    if not indent then indent = 0 end
+    if type(tbl) ~= 'table' and type(tbl) == 'string' then
+        print(tbl)
     else
-        return tostring(o)
+        for k, v in pairs(tbl) do
+            formatting = string.rep("  ", indent) .. k .. ": "
+            if type(v) == 'table' then
+                print(formatting)
+                tprint(v, indent+1)
+            elseif type(v) ~= 'string' then
+                print(formatting .. tostring(v))
+            else
+                print(formatting .. v)
+            end
+        end
     end
 end
