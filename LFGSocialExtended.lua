@@ -6,25 +6,26 @@ local L = LFGSE.L
 --- Libraries  ----
 -------------------
 
-local AceGUI = LibStub("AceGUI-3.0")
+--local AceGUI = LibStub("AceGUI-3.0")
+
+-------------------
+--- Constants  ----
+-------------------
+
 local db
 
 function LFGSE:GetDB()
     return db
 end
 
--------------------
---- Constants  ----
--------------------
-
 local LFG_DUNGEON_CATEGORY_ID = 2 -- can check with C_LFGList.GetCategoryInfo(categoryID)
 
+--Chat Message colors
 local COLOR_SUCCESS = "ffff99f7"
 local COLOR_ERROR = "ffff8d36"
 
 --local blacklist = { "Visnart-Eonar", "Pisux-TwistingNether", "Tsourdini-Silvermoon", "Caseys-Norgannon", "Xeraxo", "Dromma-Ghostlands", "Ocago-Kael'thas", "Dhboubou-Medivh", "Fiasco-Trollbane", "Zazabi-Silvermoon", "Foudyfofo-FestungderStürme", "Ketarine-FestungderStürme", "Satturn-Hyjal", "Tayraan-Shattrath", "Rummelsnuff-Outland", "Ommadawn-Outland", "Чипшотина-Азурегос", "Revoke-Auchindoun", "Danjor-Ravencrest", "Electrastar-Illidan", "Redrius-Stormrage", "Remnance-Stormrage", "Зиккуратстер-Гордунни", "Gwynblêidd-Silvermoon", "Candywrath-Silvermoon", "Lïllukka-Ravencrest", "Madúrko-Blackmoore", "Enmâh-Blackmoore", "Firehard-Blackmoore", "Gööfster", "Zeldeen-Kazzak", "Erimus-Kazzak", "Cheboksary-Kazzak", "Amagüestu-Uldum", "Jlofromblock-TarrenMill", "Excuteqtzxy-Baelgun", "Kätarinä-Drak'thul", "Sajande-Blackmoore", "Láetha-Blackmoore", "Märillië-Nemesis", "Eniotnah-MarécagedeZangar", "Ashburner-Ravencrest", "Coldrider-Blade'sEdge", "Jibbit-Alleria", "Valneria-Silvermoon", "Wirnan-DunModr", "Lûcîfer-Argent Dawn", "Vardenf-Hyjal", "Psyçhö-Ravencrest", "Nèwbie-Ravencrest", "Drahziel-DunModr", "Rebeka-DunModr", "Patximba-ColinasPardas", "Teosoul-Chromaggus", "Athènaiè-Elune", "Redmonkey-Arathor", "Frenetiic-Archimonde", "Wuacavi-Pozzodell'Eternità", "Methyc-Ravencrest", "Lolicica-Ravencrest", "Platex-TheMaelstrom", "Mightyarrow-TheMaelstrom", "Algon-Khaz'goroth", "Springfields-TheMaelstrom", "Lidià-Krasus", "Mêrlê-Lordaeron", "Joypopping-Silvermoon", "Sugenshu-Silvermoon", "Kacicek-Drak'thul", "Tranxën-MarécagedeZangar", "Hogzi-Arathor", "Strakko-BurningBlade" }
 
---db.RIOScorelowerThreshold_Color = string.format("|c%02x%02x%02x%02x", a*255, r*255, g*255, b*255)
 -------------------------
 --- Saved Variables  ----
 -------------------------
@@ -54,9 +55,7 @@ do
 
     function LFGSE.ADDON_LOADED(self, addon)
         if addon == "LFGSocialExtended" then
-
             db = LibStub("AceDB-3.0"):New("LFGSocialExtendedDB", defaultSavedVars).global
-            --register AddOn Options
             LFGSE:RegisterOptions()
             self:UnregisterEvent("ADDON_LOADED")
         end
@@ -75,8 +74,8 @@ function LFGSE:RegisterOptions()
         args = {
             header_raiderIOaddonDisabled = {
                 type = 'description',
-                name = "|cffff6817Please install/activate the addon|r |cff17d4ffRaider.IO Mythic Plus and Raid Progress|r |cffff6817to get access to it's specific features settings.|r",
-                hidden = function() return RaiderIO == nil end,
+                name = "|cffff6817Please install/activate the addon|r |cff17d4ffRaider.IO Mythic Plus and Raid Progress|r |cffff6817to get access to it's specific settings.|r",
+                hidden = function() return not RaiderIO == nil end,
                 fontSize = "medium",
                 order = 1,
             },
@@ -98,7 +97,7 @@ function LFGSE:RegisterOptions()
                 type = 'toggle',
                 name = "Show RIO Score of current Season",
                 desc = "Shows/hides the RIO Score of the current Season within the LFG Tool.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 get = function() return db.showRIOscore end,
                 set = function(_, newValue) db.showRIOscore = newValue end,
                 width = 1.75,
@@ -108,7 +107,7 @@ function LFGSE:RegisterOptions()
                 type = 'toggle',
                 name = "Show RIO Score of previous Season",
                 desc = "Shows/hides the RIO Score of the previous Season within the LFG Tool.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 get = function() return db.showPreviousRIOscore end,
                 set = function(_, newValue) db.showPreviousRIOscore = newValue end,
                 width = 1.75,
@@ -137,7 +136,7 @@ function LFGSE:RegisterOptions()
                 type = 'range',
                 name = "RIO Score Lower Threshold",
                 desc = "Sets the lower threshold of RIO score. All scores equal or lower use the specified color.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 min = 0,
                 max = db.RIOScoreupperThreshold - 1,
                 step = 1,
@@ -153,7 +152,7 @@ function LFGSE:RegisterOptions()
                 type = 'range',
                 name = "RIO Score Upper Threshold",
                 desc = "Sets the upper threshold of RIO score. All scores equal or higher use the specified color.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 min = db.RIOScorelowerThreshold,
                 max = 5000,
                 step = 1,
@@ -174,7 +173,7 @@ function LFGSE:RegisterOptions()
                 type = 'color',
                 name = "RIO Score Lower Threshold Color",
                 desc = "Sets the lower threshold color. All scores equal or higher use the specified color.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 hasAlpha = false,
                 get = function() return db.RIOScorelowerThreshold_Color.r,
                 db.RIOScorelowerThreshold_Color.g,
@@ -192,7 +191,7 @@ function LFGSE:RegisterOptions()
                 type = 'color',
                 name = "RIO Score Middle Threshold Color",
                 desc = "Sets the middle threshhold color. All scores in between of the lower and upper threshold use the specified color.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 hasAlpha = false,
                 get = function() return db.RIOScoremiddleThreshold_Color.r,
                 db.RIOScoremiddleThreshold_Color.g,
@@ -210,7 +209,7 @@ function LFGSE:RegisterOptions()
                 type = 'color',
                 name = "RIO Score Upper Threshold Color",
                 desc = "Sets the upper threshhold color. All scores equal or higher use the specified color.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 hasAlpha = false,
                 get = function() return db.RIOScoreupperThreshold_Color.r,
                                         db.RIOScoreupperThreshold_Color.g,
@@ -227,7 +226,7 @@ function LFGSE:RegisterOptions()
                 type = 'execute',
                 name = "Default Threshold Colors",
                 desc = "Reset the RIO threshold colors to their default values.",
-                disabled = function() return not RaiderIO == nil end,
+                disabled = function() return RaiderIO == nil end,
                 func = function()
                     db.RIOScorelowerThreshold_Color.r = defaultSavedVars.global.RIOScorelowerThreshold_Color.r
                     db.RIOScorelowerThreshold_Color.g = defaultSavedVars.global.RIOScorelowerThreshold_Color.g
@@ -327,7 +326,7 @@ LFGSE.SearchEntry_Update = function(group)
 
             if currentRio == "0" and previousRio == "0" then
                 scoreString = "---"
-            elseif currentRio == "0" and previousRio ~= "0" then
+            elseif currentRio == "0" and not previousRio == "0" then
                 scoreString = "(" .. previousRio .. ")"
             else
                 scoreString = currentRio
@@ -358,20 +357,49 @@ hooksecurefunc("LFGListSearchEntry_Update", LFGSE.SearchEntry_Update)
 ---------------------
 --- LFG Dropdown ----
 ---------------------
+
+local supportedTypes = {
+    PARTY = 1,
+    PLAYER = 1,
+    RAID_PLAYER = 1,
+    RAID = 1,
+    -- FRIEND = 1,
+    -- BN_FRIEND = 1,
+    -- GUILD = 1,
+    -- GUILD_OFFLINE = 1,
+    CHAT_ROSTER = 1,
+    -- TARGET = 1,
+    -- ARENAENEMY = 1,
+    -- FOCUS = 1,
+    -- WORLD_STATE_SCORE = 1,
+    COMMUNITIES_WOW_MEMBER = 1,
+    -- COMMUNITIES_GUILD_MEMBER = 1,
+    -- SELF = 1 -- We dont want to blacklist ourselves, right?
+}
+
 local frameButton
+
+LFGSE.isBlacklisted = function(charNameCheck)
+    if not charNameCheck:find("-") then
+        charNameCheck = charNameCheck .. "-" ..GetNormalizedRealmName()
+    end
+    for i,charName in pairs(db.blacklist) do
+        if charName == charNameCheck then
+            return true
+        end
+    end
+    return false
+end
 
 local function onClick_AddToBlacklist()
     CloseDropDownMenus()
 
-    for i,charName in pairs(db.blacklist) do
-        if charName == frameButton.charName then
-            LFGSE.ChatMessage(string.format("|c"..COLOR_ERROR.."%s|r%s|c"..COLOR_ERROR.."%s|r", "This player (", frameButton.charName, ") is already blacklisted! No action taken."))
-            return
-        end
+    if LFGSE.isBlacklisted(frameButton.charName) then
+        LFGSE.ChatMessage(string.format("|c"..COLOR_ERROR.."%s|r%s|c"..COLOR_ERROR.."%s|r", "This player (", frameButton.charName, ") is already blacklisted! No action taken."))
+    else
+        table.insert(db.blacklist, frameButton.charName)
+        LFGSE.ChatMessage(string.format("|c"..COLOR_SUCCESS.."%s|r%s", "Player blacklisted: ", frameButton.charName))
     end
-
-    table.insert(db.blacklist, frameButton.charName)
-    LFGSE.ChatMessage(string.format("|c"..COLOR_SUCCESS.."%s|r%s", "Player blacklisted: ", frameButton.charName))
 end
 
 local function CustomOnShow(self) -- UIDropDownMenuTemplates.xml#257
@@ -438,6 +466,8 @@ do
     frameButton.buttonBlacklist:Show()
 end
 
+
+
 local function ShowCustomDropDown(list, name)
     frameButton.charName = name
     frameButton:SetParent(list)
@@ -464,9 +494,10 @@ local function ShowCustomDropDown(list, name)
     list:SetHeight(listHeight + frameButtonHeight)
 
     local offset = 0
-    if not RaiderIO == nil then
+    if RaiderIO then
         offset = offset + 48
     end
+
 
     frameButton:SetPoint("BOTTOMLEFT", list, "BOTTOMLEFT", 0, offset)
     frameButton:SetPoint("BOTTOMRIGHT", list, "BOTTOMRIGHT", 0, offset)
@@ -483,7 +514,24 @@ end
 local function OnShow(self)
     if not self.dropdown then return end
     if not db.showButtonAddToBlacklist then return end
-    ShowCustomDropDown(self, self.dropdown.menuList[2].arg1)
+
+    if self.dropdown.Button == _G.LFGListFrameDropDownButton then -- LFG
+        local fullName = self.dropdown.menuList[2].arg1
+        if not fullName:find("-") then
+            fullName = fullName .. "-" .. GetNormalizedRealmName()
+        end
+        ShowCustomDropDown(self, fullName)
+    elseif self.dropdown.which and supportedTypes[self.dropdown.which] then -- UnitPopup
+        local dropdownFullName
+        if self.dropdown.name then
+            if self.dropdown.server and not self.dropdown.name:find("-") then
+                dropdownFullName = self.dropdown.name .. "-" .. self.dropdown.server
+            else
+                dropdownFullName = self.dropdown.name .. "-" .. GetNormalizedRealmName()
+            end
+        end
+        ShowCustomDropDown(self, self.dropdown.chatTarget or dropdownFullName)
+    end
 end
 
 local function OnHide()
