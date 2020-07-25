@@ -24,6 +24,71 @@ local LFG_DUNGEON_CATEGORY_ID = 2 -- can check with C_LFGList.GetCategoryInfo(ca
 local COLOR_SUCCESS = "ffff99f7"
 local COLOR_ERROR = "ffff8d36"
 
+--Raider.IO Dungeon List
+local rioDungeons = {
+    [1] = {
+        ["name"] = "The MOTHERLODE!!",
+        ["shortName"] = "ML",
+        ["lfg_activity_id"] = 510,
+    },
+    [2] = {
+        ["name"] = "Atal'Dazar",
+        ["shortName"] = "AD",
+        ["lfg_activity_id"] = 502,
+    },
+    [3] = {
+        ["name"] = "Freehold",
+        ["shortName"] = "FH",
+        ["lfg_activity_id"] = 518,
+    },
+    [4] = {
+        ["name"] = "Tol Dagor",
+        ["shortName"] = "TD",
+        ["lfg_activity_id"] = 526,
+    },
+    [5] = {
+        ["name"] = "Siege of Boralus",
+        ["shortName"] = "SIEGE",
+        ["lfg_activity_id"] = 534,
+    },
+    [6] = {
+        ["name"] = "The Underrot",
+        ["shortName"] = "UNDR",
+        ["lfg_activity_id"] = 507,
+    },
+    [7] = {
+        ["name"] = "Waycrest Manor",
+        ["shortName"] = "WM",
+        ["lfg_activity_id"] = 530,
+    },
+    [8] = {
+        ["name"] = "Shrine of the Storm",
+        ["shortName"] = "SOTS",
+        ["lfg_activity_id"] = 522,
+    },
+    [9] = {
+        ["name"] = "Kings' Rest",
+        ["shortName"] = "KR",
+        ["lfg_activity_id"] = 514,
+    },
+    [10] = {
+        ["name"] = "Temple of Sethraliss",
+        ["shortName"] = "TOS",
+        ["lfg_activity_id"] = 504,
+    },
+    [11] = {
+        ["name"] = "Mechagon Junkyard",
+        ["shortName"] = "YARD",
+        ["lfg_activity_id"] = 679,
+    },
+    [12] = {
+        ["name"] = "Mechagon Workshop",
+        ["shortName"] = "WORK",
+        ["lfg_activity_id"] = 683,
+    },
+
+}
+
 --local blacklist = { "Visnart-Eonar", "Pisux-TwistingNether", "Tsourdini-Silvermoon", "Caseys-Norgannon", "Xeraxo", "Dromma-Ghostlands", "Ocago-Kael'thas", "Dhboubou-Medivh", "Fiasco-Trollbane", "Zazabi-Silvermoon", "Foudyfofo-FestungderStürme", "Ketarine-FestungderStürme", "Satturn-Hyjal", "Tayraan-Shattrath", "Rummelsnuff-Outland", "Ommadawn-Outland", "Чипшотина-Азурегос", "Revoke-Auchindoun", "Danjor-Ravencrest", "Electrastar-Illidan", "Redrius-Stormrage", "Remnance-Stormrage", "Зиккуратстер-Гордунни", "Gwynblêidd-Silvermoon", "Candywrath-Silvermoon", "Lïllukka-Ravencrest", "Madúrko-Blackmoore", "Enmâh-Blackmoore", "Firehard-Blackmoore", "Gööfster", "Zeldeen-Kazzak", "Erimus-Kazzak", "Cheboksary-Kazzak", "Amagüestu-Uldum", "Jlofromblock-TarrenMill", "Excuteqtzxy-Baelgun", "Kätarinä-Drak'thul", "Sajande-Blackmoore", "Láetha-Blackmoore", "Märillië-Nemesis", "Eniotnah-MarécagedeZangar", "Ashburner-Ravencrest", "Coldrider-Blade'sEdge", "Jibbit-Alleria", "Valneria-Silvermoon", "Wirnan-DunModr", "Lûcîfer-Argent Dawn", "Vardenf-Hyjal", "Psyçhö-Ravencrest", "Nèwbie-Ravencrest", "Drahziel-DunModr", "Rebeka-DunModr", "Patximba-ColinasPardas", "Teosoul-Chromaggus", "Athènaiè-Elune", "Redmonkey-Arathor", "Frenetiic-Archimonde", "Wuacavi-Pozzodell'Eternità", "Methyc-Ravencrest", "Lolicica-Ravencrest", "Platex-TheMaelstrom", "Mightyarrow-TheMaelstrom", "Algon-Khaz'goroth", "Springfields-TheMaelstrom", "Lidià-Krasus", "Mêrlê-Lordaeron", "Joypopping-Silvermoon", "Sugenshu-Silvermoon", "Kacicek-Drak'thul", "Tranxën-MarécagedeZangar", "Hogzi-Arathor", "Strakko-BurningBlade" }
 
 -------------------------
@@ -72,10 +137,10 @@ function LFGSE:RegisterOptions()
         name = "LFG Social Extended",
         type = 'group',
         args = {
-            header_raiderIOaddonDisabled = {
+            text_raiderIOaddonDisabled = {
                 type = 'description',
                 name = "|cffff6817Please install/activate the addon|r |cff17d4ffRaider.IO Mythic Plus and Raid Progress|r |cffff6817to get access to it's specific settings.|r",
-                hidden = function() return not RaiderIO == nil end,
+                hidden = function() return RaiderIO ~= nil end,
                 fontSize = "medium",
                 order = 1,
             },
@@ -312,17 +377,45 @@ LFGSE.SearchEntry_Update = function(group)
     end
 
     --- RIO Score
-    if not RaiderIO == nil and db.showRIOscore then
+    if RaiderIO ~= nil and db.showRIOscore then
 
         local categoryID = select(3, C_LFGList.GetActivityInfo(result.activityID))
         if categoryID == LFG_DUNGEON_CATEGORY_ID then
 
-            local currentRio = LFGSE.GetPlayerRIO_CurrentSeason(result.leaderName)
-            local previousRio = LFGSE.GetPlayerRIO_PreviousSeason(result.leaderName)
+            --------------------- RIO/KeyInfo  {Title}
+            local displayString = "%s/%s  %s"
 
-            local displayString = "%s | %s"
+            local criteriaColor = "ffffffff"
+            local criteriaString = ""
+
+            local profile = LFGSE.GetPlayerRIOProfile(result.leaderName)
+            local dungeonID
+
+            for k,v in pairs(rioDungeons) do
+                if v["lfg_activity_id"] == result.activityID then
+                    dungeonID = k
+                    break
+                end
+            end
+
+            if profile then
+
+                local keystoneLevel = tonumber(profile.profile.dungeons[dungeonID])
+                local keystoneUpgrade = tonumber(profile.profile.dungeonUpgrades[dungeonID])
+
+
+
+                if keystoneLevel ~= nil and keystoneUpgrade ~= nil then
+                    criteriaString = keystoneLevel.."+"..keystoneUpgrade
+                    criteriaColor = "ff34aeeb"
+                end
+
+            end
 
             local scoreString
+
+            local currentRio = LFGSE.GetPlayerRIO_CurrentSeason(result.leaderName)
+            local previousRio = LFGSE.GetPlayerRIO_PreviousSeason(result.leaderName)
 
             if currentRio == "0" and previousRio == "0" then
                 scoreString = "---"
@@ -332,21 +425,21 @@ LFGSE.SearchEntry_Update = function(group)
                 scoreString = currentRio
             end
 
-            local color = "ffffffff"
+            local scoreColor = "ffffffff"
 
             if currentRio == nil or previousRio == nil then
-                color = LFGSE.convertColorToHex(db.RIOScorelowerThreshold_Color)
+                scoreColor = LFGSE.convertColorToHex(db.RIOScorelowerThreshold_Color)
             elseif tonumber(currentRio) > db.RIOScorelowerThreshold and tonumber(currentRio) < db.RIOScoreupperThreshold then
-                color = LFGSE.convertColorToHex(db.RIOScoremiddleThreshold_Color)
+                scoreColor = LFGSE.convertColorToHex(db.RIOScoremiddleThreshold_Color)
             elseif tonumber(currentRio) <= db.RIOScorelowerThreshold then
-                color = LFGSE.convertColorToHex(db.RIOScorelowerThreshold_Color)
+                scoreColor = LFGSE.convertColorToHex(db.RIOScorelowerThreshold_Color)
             elseif tonumber(currentRio) >= db.RIOScoreupperThreshold then
-                color = LFGSE.convertColorToHex(db.RIOScoreupperThreshold_Color)
+                scoreColor = LFGSE.convertColorToHex(db.RIOScoreupperThreshold_Color)
             else
-                color = LFGSE.convertColorToHex(db.RIOScorelowerThreshold_Color)
+                scoreColor = LFGSE.convertColorToHex(db.RIOScorelowerThreshold_Color)
             end
 
-            group.Name:SetText(string.format(displayString, ("|c%s%s|r"):format(color, scoreString), group.Name:GetText()))
+            group.Name:SetText(string.format(displayString, ("|c%s%s|r"):format(scoreColor, scoreString), ("|c%s%s|r"):format(criteriaColor, criteriaString), group.Name:GetText()))
         end
     end
 
@@ -520,6 +613,7 @@ local function OnShow(self)
         if not fullName:find("-") then
             fullName = fullName .. "-" .. GetNormalizedRealmName()
         end
+
         ShowCustomDropDown(self, fullName)
     elseif self.dropdown.which and supportedTypes[self.dropdown.which] then -- UnitPopup
         local dropdownFullName

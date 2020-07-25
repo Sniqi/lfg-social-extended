@@ -37,7 +37,7 @@ function dump (tbl, indent)
             formatting = string.rep("  ", indent) .. k .. ": "
             if type(v) == 'table' then
                 print(formatting)
-                tprint(v, indent+1)
+                dump(v, indent+1)
             elseif type(v) ~= 'string' then
                 print(formatting .. tostring(v))
             else
